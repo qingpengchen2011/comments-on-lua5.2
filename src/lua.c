@@ -358,7 +358,7 @@ static int collectargs (char **argv, int *args) {
   int i;
   for (i = 1; argv[i] != NULL; i++) {
     if (argv[i][0] != '-')  /* not an option? */
-        return i;
+        return i;			/* return immediately */
     switch (argv[i][1]) {  /* option */
       case '-':
         noextrachars(argv[i]);
