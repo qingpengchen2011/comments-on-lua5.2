@@ -439,7 +439,7 @@ static int pmain (lua_State *L) {
   int argc = (int)lua_tointeger(L, 1);
   char **argv = (char **)lua_touserdata(L, 2);
   int script;
-  int args[num_has];
+  int args[num_has];			/* used for argv options*/
   args[has_i] = args[has_v] = args[has_e] = args[has_E] = 0;
   if (argv[0] && argv[0][0]) progname = argv[0];
   script = collectargs(argv, args);
