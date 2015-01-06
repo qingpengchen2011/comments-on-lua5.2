@@ -420,7 +420,7 @@ static int runargs (lua_State *L, char **argv, int n) {
 }
 
 
-static int handle_luainit (lua_State *L) {
+static int handle_luainit (lua_State *L) {/* do init with some environment*/
   const char *name = "=" LUA_INITVERSION;
   const char *init = getenv(name + 1);
   if (init == NULL) {
