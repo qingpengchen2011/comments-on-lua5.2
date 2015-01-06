@@ -169,14 +169,14 @@ static int traceback (lua_State *L) {
 }
 
 
-static int docall (lua_State *L, int narg, int nres) {
+static int docall (lua_State *L, int narg, int nres) { /** let's call the function on stack, actually we are running code that user enter on terminal */
   int status;
   int base = lua_gettop(L) - narg;  /* function index */
   lua_pushcfunction(L, traceback);  /* push traceback function */
   lua_insert(L, base);  /* put it under chunk and args */
   globalL = L;  /* to be available to 'laction' */
   signal(SIGINT, laction);
-  status = lua_pcall(L, narg, nres, base);
+  status = lua_pcall(L, narg, nres, base);  // call with msg handler < traceback >
   signal(SIGINT, SIG_DFL);
   lua_remove(L, base);  /* remove traceback function */
   return status;
@@ -189,7 +189,7 @@ static void print_version (void) {
 }
 
 
-static int getargs (lua_State *L, char **argv, int n) {
+static int getargs (lua_State *L, char **argv, int n) {/** construct the arg table */
   int narg;
   int i;
   int argc = 0;
@@ -208,20 +208,20 @@ static int getargs (lua_State *L, char **argv, int n) {
 
 
 static int dofile (lua_State *L, const char *name) {
-  int status = luaL_loadfile(L, name);
+  int status = luaL_loadfile(L, name);/** load from file and complile it as a function set on top of stack */
   if (status == LUA_OK) status = docall(L, 0, 0);
   return report(L, status);
 }
 
 
-static int dostring (lua_State *L, const char *s, const char *name) {
+static int dostring (lua_State *L, const char *s, const char *name) { /** to run a string */
   int status = luaL_loadbuffer(L, s, strlen(s), name);
   if (status == LUA_OK) status = docall(L, 0, 0);
   return report(L, status);
 }
 
 
-static int dolibrary (lua_State *L, const char *name) {
+static int dolibrary (lua_State *L, const char *name) {  /** require the specific library */
   int status;
   lua_getglobal(L, "require");
   lua_pushstring(L, name);
@@ -232,7 +232,7 @@ static int dolibrary (lua_State *L, const char *name) {
 }
 
 
-static const char *get_prompt (lua_State *L, int firstline) {
+static const char *get_prompt (lua_State *L, int firstline) {/** get what kind of prompt symbol to use, based on weather we are in the very first line */
   const char *p;
   lua_getglobal(L, firstline ? "_PROMPT" : "_PROMPT2");
   p = lua_tostring(L, -1);
@@ -244,11 +244,11 @@ static const char *get_prompt (lua_State *L, int firstline) {
 #define EOFMARK		"<eof>"
 #define marklen		(sizeof(EOFMARK)/sizeof(char) - 1)
 
-static int incomplete (lua_State *L, int status) {
-  if (status == LUA_ERRSYNTAX) {
+static int incomplete (lua_State *L, int status) {/** return 1 -> incomplete, return 0 else */
+  if (status == LUA_ERRSYNTAX) { //check precompilation err indicating incomplete line
     size_t lmsg;
     const char *msg = lua_tolstring(L, -1, &lmsg);
-    if (lmsg >= marklen && strcmp(msg + lmsg - marklen, EOFMARK) == 0) {
+    if (lmsg >= marklen && strcmp(msg + lmsg - marklen, EOFMARK) == 0) {//string end with <eof>?
       lua_pop(L, 1);
       return 1;
     }
@@ -257,7 +257,7 @@ static int incomplete (lua_State *L, int status) {
 }
 
 
-static int pushline (lua_State *L, int firstline) {
+static int pushline (lua_State *L, int firstline) {/** push the string from stdio into stack */
   char buffer[LUA_MAXINPUT];
   char *b = buffer;
   size_t l;
@@ -285,15 +285,16 @@ static int loadline (lua_State *L) {
     return -1;  /* no input */
   for (;;) {  /* repeat until gets a complete line */
     size_t l;
-    const char *line = lua_tolstring(L, 1, &l);
+    const char *line = lua_tolstring(L, 1, &l);		//get string from the stack
     status = luaL_loadbuffer(L, line, l, "=stdin");
     if (!incomplete(L, status)) break;  /* cannot try to add lines? */
-    if (!pushline(L, 0))  /* no more input? */
+    if (!pushline(L, 0))  /* no more input? */ //try to read more
       return -1;
     lua_pushliteral(L, "\n");  /* add a new line... */
     lua_insert(L, -2);  /* ...between the two lines */
     lua_concat(L, 3);  /* join them */
   }
+  /** right now, we've got complement program string, it's complied as a function on top of stack */
   lua_saveline(L, 1);
   lua_remove(L, 1);  /* remove line */
   return status;
@@ -331,7 +332,7 @@ static int handle_script (lua_State *L, char **argv, int n) {
   fname = argv[n];
   if (strcmp(fname, "-") == 0 && strcmp(argv[n-1], "--") != 0)
     fname = NULL;  /* stdin */
-  status = luaL_loadfile(L, fname);
+  status = luaL_loadfile(L, fname);	//let's complie the file 
   lua_insert(L, -(narg+1));
   if (status == LUA_OK)
     status = docall(L, narg, LUA_MULTRET);
@@ -392,7 +393,7 @@ static int collectargs (char **argv, int *args) {
 }
 
 
-static int runargs (lua_State *L, char **argv, int n) {
+static int runargs (lua_State *L, char **argv, int n) {/** run command-line args */
   int i;
   for (i = 1; i < n; i++) {
     lua_assert(argv[i][0] == '-');
@@ -470,7 +471,7 @@ static int pmain (lua_State *L) {
       print_version();
       dotty(L);
     }
-    else dofile(L, NULL);  /* executes stdin as a file */
+    else dofile(L, NULL);  /* executes stdin as a file */ //if not tty?
   }
   lua_pushboolean(L, 1);  /* signal no errors */
   return 1;
