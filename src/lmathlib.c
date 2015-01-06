@@ -195,7 +195,7 @@ static int math_max (lua_State *L) {
 }
 
 
-static int math_random (lua_State *L) {
+static int math_random (lua_State *L) {//** learn how to use various args in C */
   /* the `%' avoids the (rare) case of r==1, and is needed also because on
      some systems (SunOS!) `rand()' may return a value larger than RAND_MAX */
   lua_Number r = (lua_Number)(rand()%RAND_MAX) / (lua_Number)RAND_MAX;
@@ -268,7 +268,7 @@ static const luaL_Reg mathlib[] = {
 /*
 ** Open math library
 */
-LUAMOD_API int luaopen_math (lua_State *L) {
+LUAMOD_API int luaopen_math (lua_State *L) { /** register the functions and then 2 CONSTANT VALUES */
   luaL_newlib(L, mathlib);
   lua_pushnumber(L, PI);
   lua_setfield(L, -2, "pi");
