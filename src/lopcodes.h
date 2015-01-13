@@ -31,6 +31,11 @@
 
 enum OpMode {iABC, iABx, iAsBx, iAx};  /* basic instruction format */
 
+/** 
+  * the layout of instructions 
+  * OP  A C B 
+  *
+ **/
 
 /*
 ** size and position of opcode arguments.
