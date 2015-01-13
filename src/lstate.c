@@ -73,7 +73,7 @@ typedef struct LG {
 } LG;
 
 
-
+/** get the start position of struct LG **/
 #define fromstate(L)	(cast(LX *, cast(lu_byte *, (L)) - offsetof(LX, l)))
 
 
@@ -187,7 +187,7 @@ static void f_luaopen (lua_State *L, void *ud) {
   init_registry(L, g);
   luaS_resize(L, MINSTRTABSIZE);  /* initial size of string table */
   luaT_init(L);
-  luaX_init(L);
+  luaX_init(L); 	/** init lexer as well */
   /* pre-create memory-error message */
   g->memerrmsg = luaS_newliteral(L, MEMERRMSG);
   luaS_fix(g->memerrmsg);  /* it should never be collected */
