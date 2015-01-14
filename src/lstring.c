@@ -51,7 +51,7 @@ int luaS_eqstr (TString *a, TString *b) {
 unsigned int luaS_hash (const char *str, size_t l, unsigned int seed) {
   unsigned int h = seed ^ cast(unsigned int, l);
   size_t l1;
-  size_t step = (l >> LUAI_HASHLIMIT) + 1;
+  size_t step = (l >> LUAI_HASHLIMIT) + 1; /** step can be more than 1, based on the length of str */
   for (l1 = l; l1 >= step; l1 -= step)
     h = h ^ ((h<<5) + (h>>2) + cast_byte(str[l1 - 1]));
   return h;
@@ -78,7 +78,7 @@ void luaS_resize (lua_State *L, int newsize) {
       GCObject *next = gch(p)->next;  /* save next */
       unsigned int h = lmod(gco2ts(p)->hash, newsize);  /* new position */
       gch(p)->next = tb->hash[h];  /* chain it */
-      tb->hash[h] = p;
+      tb->hash[h] = p;				/** insert into head */
       resetoldbit(p);  /* see MOVE OLD rule */
       p = next;
     }
@@ -99,7 +99,7 @@ static TString *createstrobj (lua_State *L, const char *str, size_t l,
                               int tag, unsigned int h, GCObject **list) {
   TString *ts;
   size_t totalsize;  /* total size of TString object */
-  totalsize = sizeof(TString) + ((l + 1) * sizeof(char));
+  totalsize = sizeof(TString) + ((l + 1) * sizeof(char)); //** 1 for the ending \0 */
   ts = &luaC_newobj(L, tag, totalsize, list, 0)->ts;
   ts->tsv.len = l;
   ts->tsv.hash = h;
