@@ -282,7 +282,7 @@ static void setnodevector (lua_State *L, Table *t, int size) {
     t->node = cast(Node *, dummynode);  /* use common `dummynode' */
     lsize = 0;
   }
-  else {
+  else {/** adjust size to power of 2 */
     int i;
     lsize = luaO_ceillog2(size);
     if (lsize > MAXBITS)

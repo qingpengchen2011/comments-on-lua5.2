@@ -547,11 +547,13 @@ typedef union TKey {
     TValuefields;
     struct Node *next;  /* for chaining */
   } nk;
-  TValue tvk;
+  TValue tvk;			/** actual, Tvaluefields and Tvalue tvk are the all 
+							same, define TKey as union maye just want to 
+						reference the same structure with different field name */
 } TKey;
 
 
-typedef struct Node {
+typedef struct Node { /** represent a key-value pair */
   TValue i_val;
   TKey i_key;
 } Node;
@@ -579,7 +581,7 @@ typedef struct Table {
 
 
 #define twoto(x)	(1<<(x))
-#define sizenode(t)	(twoto((t)->lsizenode))
+#define sizenode(t)	(twoto((t)->lsizenode))		/** power 2 */   
 
 
 /*
