@@ -172,7 +172,7 @@ TString *luaS_new (lua_State *L, const char *str) {
 }
 
 
-Udata *luaS_newudata (lua_State *L, size_t s, Table *e) {
+Udata *luaS_newudata (lua_State *L, size_t s, Table *e) {/** for create udata */
   Udata *u;
   if (s > MAX_SIZET - sizeof(Udata))
     luaM_toobig(L);

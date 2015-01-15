@@ -94,7 +94,7 @@ static Node *hashnum (const Table *t, lua_Number n) {
 ** returns the `main' position of an element in a table (that is, the index
 ** of its hash value)
 */
-static Node *mainposition (const Table *t, const TValue *key) {
+static Node *mainposition (const Table *t, const TValue *key) {/** key --> hash value */
   switch (ttype(key)) {
     case LUA_TNUMBER:
       return hashnum(t, nvalue(key));
@@ -340,7 +340,7 @@ void luaH_resizearray (lua_State *L, Table *t, int nasize) {
 }
 
 
-static void rehash (lua_State *L, Table *t, const TValue *ek) {
+static void rehash (lua_State *L, Table *t, const TValue *ek) {/** use numusehash and numusearray to count the interger key */
   int nasize, na;
   int nums[MAXBITS+1];  /* nums[i] = number of keys with 2^(i-1) < k <= 2^i */
   int i;
@@ -350,7 +350,7 @@ static void rehash (lua_State *L, Table *t, const TValue *ek) {
   totaluse = nasize;  /* all those keys are integer keys */
   totaluse += numusehash(t, nums, &nasize);  /* count keys in hash part */
   /* count extra key */
-  nasize += countint(ek, nums);
+  nasize += countint(ek, nums); /** for this new key */
   totaluse++;
   /* compute new size for array part */
   na = computesizes(nums, &nasize);
@@ -433,6 +433,7 @@ TValue *luaH_newkey (lua_State *L, Table *t, const TValue *key) {
       mp = n;
     }
   }
+  /** the mainposition is free */
   setobj2t(L, gkey(mp), key);
   luaC_barrierback(L, obj2gco(t), key);
   lua_assert(ttisnil(gval(mp)));
@@ -445,7 +446,7 @@ TValue *luaH_newkey (lua_State *L, Table *t, const TValue *key) {
 */
 const TValue *luaH_getint (Table *t, int key) {
   /* (1 <= key && key <= t->sizearray) */
-  if (cast(unsigned int, key-1) < cast(unsigned int, t->sizearray))
+  if (cast(unsigned int, key-1) < cast(unsigned int, t->sizearray))/** hey, this interger key is in the array part */
     return &t->array[key-1];
   else {
     lua_Number nk = cast_num(key);
@@ -485,7 +486,7 @@ const TValue *luaH_get (Table *t, const TValue *key) {
     case LUA_TNUMBER: {
       int k;
       lua_Number n = nvalue(key);
-      lua_number2int(k, n);
+      lua_number2int(k, n);		/** try to convert into int, because lua_Number is type double */
       if (luai_numeq(cast_num(k), n)) /* index is int? */
         return luaH_getint(t, k);  /* use specialized version */
       /* else go through */
