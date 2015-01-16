@@ -496,7 +496,7 @@ typedef struct Proto {
 typedef struct UpVal {
   CommonHeader;
   TValue *v;  /* points to stack or to its own value */
-  union {
+  union {/** union indicate that value and l will be used seperately, eg: for open or closed */
     TValue value;  /* the value (when closed) */
     struct {  /* double linked list (when open) */
       struct UpVal *prev;
