@@ -154,7 +154,7 @@ static int findindex (lua_State *L, Table *t, StkId key) {
       if (luaV_rawequalobj(gkey(n), key) ||
             (ttisdeadkey(gkey(n)) && iscollectable(key) &&
              deadvalue(gkey(n)) == gcvalue(key))) {
-        i = cast_int(n - gnode(t, 0));  /* key index in hash table */
+        i = cast_int(n - gnode(t, 0));  /* key index in hash table */ /**index i is somewhere in the hash part */ 
         /* hash elements are numbered after array ones */
         return i + t->sizearray;
       }
@@ -177,8 +177,8 @@ int luaH_next (lua_State *L, Table *t, StkId key) {
   }
   for (i -= t->sizearray; i < sizenode(t); i++) {  /* then hash part */
     if (!ttisnil(gval(gnode(t, i)))) {  /* a non-nil value? */
-      setobj2s(L, key, gkey(gnode(t, i)));
-      setobj2s(L, key+1, gval(gnode(t, i)));
+      setobj2s(L, key, gkey(gnode(t, i)));	/** set to two stack slot, may be used next time ? */
+      setobj2s(L, key+1, gval(gnode(t, i)));	/** key + 1 ?? */
       return 1;
     }
   }
