@@ -563,7 +563,7 @@ typedef struct Table {
   lu_byte lsizenode;  /* log2 of size of `node' array */
   struct Table *metatable;
   TValue *array;  /* array part */
-  Node *node;
+  Node *node;		/** do close hasing */
   Node *lastfree;  /* any free position is before this position */
   GCObject *gclist;
   int sizearray;  /* size of `array' array */
