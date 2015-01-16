@@ -89,7 +89,7 @@ typedef void * (*lua_Alloc) (void *ud, void *ptr, size_t osize, size_t nsize);
 
 
 
-/* minimum Lua stack available to a C function */
+/* minimum Lua stack available to a C function */ /** used for return values ? */
 #define LUA_MINSTACK	20
 
 

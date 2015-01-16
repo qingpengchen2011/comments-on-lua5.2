@@ -44,7 +44,7 @@ UpVal *luaF_newupval (lua_State *L) {
 }
 
 
-UpVal *luaF_findupval (lua_State *L, StkId level) {
+UpVal *luaF_findupval (lua_State *L, StkId level) {/** change value on stack to upvalue, first find it in openupval or create a new one */  
   global_State *g = G(L);
   GCObject **pp = &L->openupval;
   UpVal *p;
@@ -86,7 +86,7 @@ void luaF_freeupval (lua_State *L, UpVal *uv) {
 }
 
 
-void luaF_close (lua_State *L, StkId level) {
+void luaF_close (lua_State *L, StkId level) { /** close an open upvalue */
   UpVal *uv;
   global_State *g = G(L);
   while (L->openupval != NULL && (uv = gco2uv(L->openupval))->v >= level) {
