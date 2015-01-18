@@ -107,7 +107,7 @@ static void callTM (lua_State *L, const TValue *f, const TValue *p1,
 }
 
 
-void luaV_gettable (lua_State *L, const TValue *t, TValue *key, StkId val) {
+void luaV_gettable (lua_State *L, const TValue *t, TValue *key, StkId val) { /** val:= t[key] */
   int loop;
   for (loop = 0; loop < MAXTAGLOOP; loop++) {
     const TValue *tm;
@@ -133,7 +133,7 @@ void luaV_gettable (lua_State *L, const TValue *t, TValue *key, StkId val) {
 }
 
 
-void luaV_settable (lua_State *L, const TValue *t, TValue *key, StkId val) {
+void luaV_settable (lua_State *L, const TValue *t, TValue *key, StkId val) { /** t[key] := val */
   int loop;
   for (loop = 0; loop < MAXTAGLOOP; loop++) {
     const TValue *tm;
@@ -534,8 +534,8 @@ void luaV_finishOp (lua_State *L) {
 void luaV_execute (lua_State *L) {
   CallInfo *ci = L->ci;
   LClosure *cl;
-  TValue *k;
-  StkId base;
+  TValue *k;	/** constant base **/
+  StkId base;	/** stack base; eg: register base */
  newframe:  /* reentry point when frame changes (call/return) */
   lua_assert(ci == L->ci);
   cl = clLvalue(ci->func);
@@ -563,7 +563,7 @@ void luaV_execute (lua_State *L) {
       )
       vmcase(OP_LOADKX,
         TValue *rb;
-        lua_assert(GET_OPCODE(*ci->u.l.savedpc) == OP_EXTRAARG);
+        lua_assert(GET_OPCODE(*ci->u.l.savedpc) == OP_EXTRAARG);/** check next instruction */
         rb = k + GETARG_Ax(*ci->u.l.savedpc++);
         setobj2s(L, ra, rb);
       )
@@ -613,7 +613,8 @@ void luaV_execute (lua_State *L) {
         StkId rb = RB(i);
         setobjs2s(L, ra+1, rb);
         Protect(luaV_gettable(L, rb, RKC(i), ra));
-      )
+      )	
+	  /** arithmetic */
       vmcase(OP_ADD,
         arith_op(luai_numadd, TM_ADD);
       )
