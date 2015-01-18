@@ -240,7 +240,7 @@ typedef struct lua_TValue TValue;
 #define setobj(L,obj1,obj2) \
 	{ const TValue *io2=(obj2); TValue *io1=(obj1); \
 	  io1->value_ = io2->value_; io1->tt_ = io2->tt_; \
-	  checkliveness(G(L),io1); }
+	  checkliveness(G(L),io1); } /** set obj2 to obj1 */
 
 
 /*
@@ -399,7 +399,7 @@ struct lua_TValue {
 };
 
 
-typedef TValue *StkId;  /* index to stack elements */
+typedef TValue *StkId;  /* index to stack elements */  /** stack: array of Tvalue */
 
 
 

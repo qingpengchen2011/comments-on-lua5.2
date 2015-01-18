@@ -109,7 +109,7 @@ void luaE_setdebt (global_State *g, l_mem debt) {
 }
 
 
-CallInfo *luaE_extendCI (lua_State *L) {
+CallInfo *luaE_extendCI (lua_State *L) {/** link into double-link list */
   CallInfo *ci = luaM_new(L, CallInfo);
   lua_assert(L->ci->next == NULL);
   L->ci->next = ci;
@@ -239,7 +239,7 @@ LUA_API lua_State *lua_newthread (lua_State *L) {
   lua_lock(L);
   luaC_checkGC(L);
   L1 = &luaC_newobj(L, LUA_TTHREAD, sizeof(LX), NULL, offsetof(LX, l))->th;
-  setthvalue(L, L->top, L1);
+  setthvalue(L, L->top, L1); /** set this new thread to the stack top of L */ 
   api_incr_top(L);
   preinit_state(L1, G(L));
   L1->hookmask = L->hookmask;

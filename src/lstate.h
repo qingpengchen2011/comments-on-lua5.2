@@ -66,9 +66,9 @@ typedef struct stringtable {
 /*
 ** information about a call
 */
-typedef struct CallInfo {
+typedef struct CallInfo {	/** function call stack, right now we are in this function'body; used both for Lua function and C function  */ 
   StkId func;  /* function index in the stack */
-  StkId	top;  /* top for this function */
+  StkId	top;  /* top for this function */ /**top stack of this function ? */  
   struct CallInfo *previous, *next;  /* dynamic call link */
   short nresults;  /* expected number of results from this function */
   lu_byte callstatus;
@@ -151,7 +151,7 @@ typedef struct global_State {
 /*
 ** `per thread' state
 */
-struct lua_State {
+struct lua_State { /** thread: preemptive or non-preemptive, lua thread is non-preemptive */
   CommonHeader;
   lu_byte status;
   StkId top;  /* first free slot in the stack */
