@@ -68,7 +68,7 @@ typedef struct stringtable {
 */
 typedef struct CallInfo {	/** function call stack, right now we are in this function'body; used both for Lua function and C function  */ 
   StkId func;  /* function index in the stack */
-  StkId	top;  /* top for this function */ /**top stack of this function ? */  
+  StkId	top;  /* top for this function */ /** top stack of this function, first free slot? under this slot are occupied by 'registers' ? */  
   struct CallInfo *previous, *next;  /* dynamic call link */
   short nresults;  /* expected number of results from this function */
   lu_byte callstatus;

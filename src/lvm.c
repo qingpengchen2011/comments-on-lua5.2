@@ -221,7 +221,7 @@ static int l_strcmp (const TString *ls, const TString *rs) {
       else if (len == ll)  /* l is finished? */
         return -1;  /* l is smaller than r (because r is not finished) */
       /* both strings longer than `len'; go on comparing (after the `\0') */
-      len++;
+      len++; /** skip '\0' */
       l += len; ll -= len; r += len; lr -= len;
     }
   }
@@ -248,7 +248,7 @@ int luaV_lessequal (lua_State *L, const TValue *l, const TValue *r) {
     return l_strcmp(rawtsvalue(l), rawtsvalue(r)) <= 0;
   else if ((res = call_orderTM(L, l, r, TM_LE)) >= 0)  /* first try `le' */
     return res;
-  else if ((res = call_orderTM(L, r, l, TM_LT)) < 0)  /* else try `lt' */
+  else if ((res = call_orderTM(L, r, l, TM_LT)) < 0)  /* else try `lt' */ /** if there doesn't exist TM_LE, we use TM_LT */
     luaG_ordererror(L, l, r);
   return !res;
 }
@@ -295,7 +295,7 @@ void luaV_concat (lua_State *L, int total) {
   do {
     StkId top = L->top;
     int n = 2;  /* number of elements handled in this pass (at least 2) */
-    if (!(ttisstring(top-2) || ttisnumber(top-2)) || !tostring(L, top-1)) {
+    if (!(ttisstring(top-2) || ttisnumber(top-2)) || !tostring(L, top-1)) { /** top - 1 is not a string only if we are in the very first loop */
       if (!call_binTM(L, top-2, top-1, top-2, TM_CONCAT))
         luaG_concaterror(L, top-2, top-1);
     }
@@ -304,13 +304,13 @@ void luaV_concat (lua_State *L, int total) {
     else if (ttisstring(top-2) && tsvalue(top-2)->len == 0) {
       setobjs2s(L, top - 2, top - 1);  /* result is second op. */
     }
-    else {
+    else {	/** we only concat string in this branch */
       /* at least two non-empty string values; get as many as possible */
       size_t tl = tsvalue(top-1)->len;
       char *buffer;
       int i;
       /* collect total length */
-      for (i = 1; i < total && tostring(L, top-i-1); i++) {
+      for (i = 1; i < total && tostring(L, top-i-1); i++) {	/** and possible we need to call METAMETHOD __concat we break */
         size_t l = tsvalue(top-i-1)->len;
         if (l >= (MAX_SIZET/sizeof(char)) - tl)
           luaG_runerror(L, "string length overflow");
@@ -663,6 +663,7 @@ void luaV_execute (lua_State *L) {
         checkGC(L, (ra >= rb ? ra + 1 : rb));
         L->top = ci->top;  /* restore top */
       )
+	  /** jmps and branches and logic op */
       vmcase(OP_JMP,
         dojump(ci, i, 0);
       )
@@ -707,6 +708,7 @@ void luaV_execute (lua_State *L) {
           donextjump(ci);
         }
       )
+	  /** function call and return */
       vmcase(OP_CALL,
         int b = GETARG_B(i);
         int nresults = GETARG_C(i) - 1;
