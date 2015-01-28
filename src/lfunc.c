@@ -30,7 +30,7 @@ Closure *luaF_newCclosure (lua_State *L, int n) {
 Closure *luaF_newLclosure (lua_State *L, int n) {
   Closure *c = &luaC_newobj(L, LUA_TLCL, sizeLclosure(n), NULL, 0)->cl;
   c->l.p = NULL;
-  c->l.nupvalues = cast_byte(n);
+  c->l.nupvalues = cast_byte(n);	/** number of upvalues this Lclosure uses */
   while (n--) c->l.upvals[n] = NULL;
   return c;
 }
@@ -62,7 +62,7 @@ UpVal *luaF_findupval (lua_State *L, StkId level) {/** change value on stack to 
   }
   /* not found: create a new one */
   uv = &luaC_newobj(L, LUA_TUPVAL, sizeof(UpVal), pp, 0)->uv;
-  uv->v = level;  /* current value lives in the stack */
+  uv->v = level;  /* current value lives in the stack */ /** point to stack */
   uv->u.l.prev = &g->uvhead;  /* double link it in `uvhead' list */
   uv->u.l.next = g->uvhead.u.l.next;
   uv->u.l.next->u.l.prev = uv;
@@ -97,8 +97,8 @@ void luaF_close (lua_State *L, StkId level) { /** close an open upvalue */
       luaF_freeupval(L, uv);  /* free upvalue */
     else {
       unlinkupval(uv);  /* remove upvalue from 'uvhead' list */
-      setobj(L, &uv->u.value, uv->v);  /* move value to upvalue slot */
-      uv->v = &uv->u.value;  /* now current value lives here */
+      setobj(L, &uv->u.value, uv->v);  /* move value to upvalue slot */ /** copy data */
+      uv->v = &uv->u.value;  /* now current value lives here */			/** adjust point */
       gch(o)->next = g->allgc;  /* link upvalue into 'allgc' list */
       g->allgc = o;
       luaC_checkupvalcolor(g, uv);

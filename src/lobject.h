@@ -472,10 +472,10 @@ typedef struct Proto {
   int *lineinfo;  /* map from opcodes to source lines (debug information) */
   LocVar *locvars;  /* information about local variables (debug information) */
   Upvaldesc *upvalues;  /* upvalue information */
-  union Closure *cache;  /* last created closure with this prototype */
+  union Closure *cache;  /* last created closure with this prototype */ /** iff upvalues are same, we reuse this closure */ 
   TString  *source;  /* used for debug information */
   int sizeupvalues;  /* size of 'upvalues' */
-  int sizek;  /* size of `k' */
+  int sizek;  /* size of `k' */ 
   int sizecode;
   int sizelineinfo;
   int sizep;  /* size of `p' */
@@ -495,7 +495,7 @@ typedef struct Proto {
 */
 typedef struct UpVal {
   CommonHeader;
-  TValue *v;  /* points to stack or to its own value */
+  TValue *v;  /* points to stack or to its own value */ /** stack -> open, 'own value' -> closed */
   union {/** union indicate that value and l will be used seperately, eg: for open or closed */
     TValue value;  /* the value (when closed) */
     struct {  /* double linked list (when open) */
@@ -516,7 +516,7 @@ typedef struct UpVal {
 typedef struct CClosure {
   ClosureHeader;
   lua_CFunction f;
-  TValue upvalue[1];  /* list of upvalues */
+  TValue upvalue[1];  /* list of upvalues */ /** note the difference with LClosure */
 } CClosure;
 
 
