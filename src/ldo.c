@@ -100,7 +100,7 @@ static void seterrorobj (lua_State *L, int errcode, StkId oldtop) {
 }
 
 
-l_noret luaD_throw (lua_State *L, int errcode) {
+l_noret luaD_throw (lua_State *L, int errcode) {	/** when error occurs, we do throw */
   if (L->errorJmp) {  /* thread has an error handler? */
     L->errorJmp->status = errcode;  /* set status */
     LUAI_THROW(L, L->errorJmp);  /* jump to it */
@@ -129,7 +129,7 @@ int luaD_rawrunprotected (lua_State *L, Pfunc f, void *ud) {/** return code indi
   lj.previous = L->errorJmp;  /* chain new error handler */
   L->errorJmp = &lj;
   LUAI_TRY(L, &lj,
-    (*f)(L, ud);
+    (*f)(L, ud);	/** setlongjmp */
   );/** no matter whether we encounters error in call (*f)(L, ud) or not, we will eventually arrive in this point */   
   L->errorJmp = lj.previous;  /* restore old error handler */
   L->nCcalls = oldnCcalls;
@@ -172,7 +172,7 @@ void luaD_reallocstack (lua_State *L, int newsize) {
 }
 
 
-void luaD_growstack (lua_State *L, int n) {
+void luaD_growstack (lua_State *L, int n) {	/** n: number of spaces to grow */
   int size = L->stacksize;
   if (size > LUAI_MAXSTACK)  /* error after extra size? */
     luaD_throw(L, LUA_ERRERR);
@@ -263,14 +263,14 @@ static StkId adjust_varargs (lua_State *L, Proto *p, int actual) {
   luaD_checkstack(L, p->maxstacksize);  /* check again for new 'base' */
   fixed = L->top - actual;  /* first fixed argument */
   base = L->top;  /* final position of first argument */
-  for (i=0; i<nfixargs; i++) {/** move fixed args upon base,eg: base+1, base+2, ..., ; while leleaving the var args under base */
+  for (i=0; i<nfixargs; i++) {/** move fixed args in and above base,eg: base, base+1, base+2, ..., ; while leleaving the var args under base */
     setobjs2s(L, L->top++, fixed + i);
     setnilvalue(fixed + i);
   }
   /** the stack layout:
-  *   var args | base | fix args 
+  *   var args | fix args 
   **/
-  return base;
+  return base; /** base point to the first argument */
 }
 
 
@@ -362,7 +362,7 @@ int luaD_precall (lua_State *L, StkId func, int nresults) {
 }
 
 
-int luaD_poscall (lua_State *L, StkId firstResult) {
+int luaD_poscall (lua_State *L, StkId firstResult) {	/** return value: number of results */
   StkId res;
   int wanted, i;
   CallInfo *ci = L->ci;
@@ -374,7 +374,7 @@ int luaD_poscall (lua_State *L, StkId firstResult) {
     }
     L->oldpc = ci->previous->u.l.savedpc;  /* 'oldpc' for caller function */
   }
-  res = ci->func;  /* res == final position of 1st result */ /**the origin function on stack will be erased, and placed the 1st result */
+  res = ci->func;  /* res == final position of 1st result */ /**the origin function on stack will be erased, and placed with the 1st result */
   wanted = ci->nresults;
   L->ci = ci = ci->previous;  /* back to caller */
   /* move results to correct place */
@@ -382,7 +382,7 @@ int luaD_poscall (lua_State *L, StkId firstResult) {
     setobjs2s(L, res++, firstResult++);
   while (i-- > 0)
     setnilvalue(res++);
-  L->top = res;
+  L->top = res;	/** result values are under L->top, and number of results are returnd  */
   return (wanted - LUA_MULTRET);  /* 0 iff wanted == LUA_MULTRET */
 }
 

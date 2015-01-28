@@ -89,7 +89,7 @@ void luaF_freeupval (lua_State *L, UpVal *uv) {
 void luaF_close (lua_State *L, StkId level) { /** close an open upvalue */
   UpVal *uv;
   global_State *g = G(L);
-  while (L->openupval != NULL && (uv = gco2uv(L->openupval))->v >= level) {
+  while (L->openupval != NULL && (uv = gco2uv(L->openupval))->v >= level) { /** >= level means deeper than current call/data stack */
     GCObject *o = obj2gco(uv);
     lua_assert(!isblack(o) && uv->v != &uv->u.value);
     L->openupval = uv->next;  /* remove from `open' list */
