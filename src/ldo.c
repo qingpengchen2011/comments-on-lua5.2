@@ -167,8 +167,8 @@ void luaD_reallocstack (lua_State *L, int newsize) {
   for (; lim < newsize; lim++)
     setnilvalue(L->stack + lim); /* erase new segment */
   L->stacksize = newsize;
-  L->stack_last = L->stack + newsize - EXTRA_STACK;
-  correctstack(L, oldstack);
+  L->stack_last = L->stack + newsize - EXTRA_STACK;	/** L->stack, L->stack_last, L->stacksize is updated */
+  correctstack(L, oldstack);		/** need to update more */
 }
 
 

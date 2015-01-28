@@ -145,7 +145,7 @@ static void stack_init (lua_State *L1, lua_State *L) {
   ci->callstatus = 0;
   ci->func = L1->top;
   setnilvalue(L1->top++);  /* 'function' entry for this 'ci' */
-  ci->top = L1->top + LUA_MINSTACK;
+  ci->top = L1->top + LUA_MINSTACK; /** slots between L1->top and ci->top , what are these spaces used for ?*/
   L1->ci = ci;
 }
 
